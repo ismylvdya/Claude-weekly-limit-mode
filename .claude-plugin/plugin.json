@@ -1,0 +1,6 @@
+{
+  "name": "weekly-segments",
+  "version": "0.1.0",
+  "description": "Weekly limit as a 7-day status line, today expanded",
+  "types": "./types/index.d.ts"
+}

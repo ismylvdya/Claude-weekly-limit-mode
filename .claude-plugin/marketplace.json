@@ -1,0 +1,5 @@
+{
+  "name": "claude-weekly-limit-mode",
+  "owner": { "name": "ismylvdya" },
+  "plugins": [{ "name": "weekly-segments", "source": "./" }]
+}
