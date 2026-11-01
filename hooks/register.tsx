@@ -22,20 +22,25 @@ function dot(fraction: number) {
   return fraction >= 0.75 ? '●' : fraction >= 0.1 ? '◐' : '○'
 }
 
-// Status line: a dot per day, today as ten dots, each one a tenth of today's slice.
+// Status line: today as ten dots (each a tenth of today's slice). When the limit's cursor sits
+// in another day, the single-dot days from today up to that day are shown beside it; otherwise nothing else.
 function statusText(used: number, today: number) {
   const span = 100 / SEGMENTS
-  const parts: string[] = []
-  for (let i = 0; i < SEGMENTS; i++) {
-    const fraction = Math.min(1, Math.max(0, (used - i * span) / span))
-    if (i === today) {
-      let cells = ''
-      for (let j = 0; j < 10; j++) cells += dot(Math.min(1, Math.max(0, fraction * 10 - j)))
-      parts.push(cells)
-    } else parts.push(dot(fraction))
+  const share = (i: number) => Math.min(1, Math.max(0, (used - i * span) / span))
+  const cursor = Math.min(SEGMENTS - 1, Math.max(0, Math.floor(used / span)))
+  if (today < 0) return Array.from({ length: SEGMENTS }, (_, i) => dot(share(i))).join(' \u30fb ')
+
+  let cells = ''
+  for (let j = 0; j < 10; j++) cells += dot(Math.min(1, Math.max(0, share(today) * 10 - j)))
+
+  const single = (from: number, to: number) => {
+    const dots: string[] = []
+    for (let i = from; i <= to; i++) dots.push(dot(share(i)))
+    return dots.join(' \uff65 ')
   }
-  // Fullwidth dots on both sides of today's bar, halfwidth between the single days.
-  return parts.map((part, i) => (i === 0 ? part : (i === today || i - 1 === today ? ' \u30fb ' : ' \uff65 ') + part)).join('')
+  if (cursor > today) return cells + ' \u30fb ' + single(today + 1, cursor)
+  if (cursor < today) return single(cursor, today - 1) + ' \u30fb ' + cells
+  return cells
 }
 
 // A function that receives $ must be declared at the top level of the file.
